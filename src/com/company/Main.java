@@ -20,21 +20,21 @@ import java.util.Arrays;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         //Descomenta la linea del ejercicio que quieras ejecutar.
 
 
 //        Ejercicio1_1();
-//        Ejercicio1_2();
 //        Ejercicio1_2_1();
+//        Ejercicio1_2_2();
 //        Ejercicio1_3();
 //        Ejercicio1_4();
 //        Ejercicio1_5();
 //        Ejercicio1_6();
 
 //        Ejercicio2_1();
-        Ejercicio2_2();
+//        Ejercicio2_2();
 
     }
 
@@ -53,10 +53,10 @@ public class Main {
         System.out.println(new String(msgDescifrado, StandardCharsets.UTF_8));
     }
 
-        // Ejercicio 1.2 -------------------------------------------------------------------------//
-        private static void Ejercicio1_2() throws Exception {
+        // Ejercicio 1.2.1 -------------------------------------------------------------------------//
+        private static void Ejercicio1_2_1() throws Exception {
 
-            KeyStore keystore = Methods.loadKeyStore("C:\\Users\\danvu\\IdeaProjects\\Private Key\\test.keystore", "keystore");
+            KeyStore keystore = Methods.loadKeyStore("test.keystore", "keystore");
             System.out.println("Type: " + keystore.getType());
             System.out.println("Size: " + keystore.size());
             System.out.println("Aliases: " + keystore.aliases());
@@ -66,15 +66,17 @@ public class Main {
 
         }
 
-        // Ejercicio 1.2.1 -------------------------------------------------------------------------//
-        private static void Ejercicio1_2_1() throws Exception {
-            KeyStore keystore = Methods.loadKeyStore("C:\\Users\\danvu\\IdeaProjects\\Private Key\\test.keystore", "keystore");
+        // Ejercicio 1.2.2 -------------------------------------------------------------------------//
+        private static void Ejercicio1_2_2() throws Exception {
+
+            KeyStore keystore = Methods.loadKeyStore("test.keystore", "keystore");
             SecretKey sKey = Methods.keygenKeyGeneration(128);
             KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(sKey);
             String password = "Hola";
             KeyStore.ProtectionParameter protectionParameter = new KeyStore.PasswordProtection(password.toCharArray());
             keystore.setEntry("key", secretKeyEntry, protectionParameter);
 
+            System.out.println("True = Created");
             System.out.println(keystore.isKeyEntry("key"));
         }
 
@@ -82,16 +84,19 @@ public class Main {
         private static void Ejercicio1_3() throws Exception {
 
             File file = new File("certificate.cer"); //Certificate of Public Key "Keystore"
-            System.out.println(Methods.getPublicKeyEj3(file)); // No lo he hecho con string en el method, es lo mismo si pones File. Solo que con el string tendrías que definir el path del File dentro del método.
+            System.out.println(Methods.getPublicKeyEj3(file));
+            // No lo he hecho con string, es lo mismo si pones File en los parametros del metodo.
+            // Solo que con el string tendrías que definir el path del File dentro del método.
 
         }
 
         // Ejercicio 1.4 -------------------------------------------------------------------------//
         private static void Ejercicio1_4() throws Exception {
 
-            // Hay que crear la Clave Asimetrica para que salga bien (keytool -genkeypair -alias test -keyalg DSA -keystore test.keystore)
+            // Hay que crear la Clave Asimetrica en la terminal para que salga bien (keytool -genkeypair -alias test -keyalg DSA -keystore test.keystore)
             KeyStore keystore = Methods.loadKeyStore("test.keystore", "keystore");
-            System.out.println(Methods.getPublicKeyE4(keystore, "test", "keystore"));
+            System.out.println(Methods.getPublicKeyEj4(keystore, "test", "keystore"));
+
         }
 
         // Ejercicio 1.5 -------------------------------------------------------------------------//
@@ -114,34 +119,52 @@ public class Main {
         private static void Ejercicio2_1(){
             System.out.println("Dades Xifrades");
             System.out.println("byte[][] encWrappedData = new byte[2][];");
+            System.out.println("-----------------------------------------------------");
 
             System.out.println("Generacio de Clau");
             System.out.println("KeyGenerator kgen = KeyGenerator.getInstance(\"AES\");\n" + "kgen.init(128);");
+            System.out.println("-----------------------------------------------------");
+
 
             System.out.println("Algortimo de Cifrado");
             System.out.println("Cipher cipher = Cipher.getInstance(\"AES\");\n" + "cipher.init(Cipher.ENCRYPT_MODE, sKey);");
+            System.out.println("-----------------------------------------------------");
+
 
             System.out.println("Dades Cifradas");
             System.out.println("byte[] encMsg = cipher.doFinal(data);");
+            System.out.println("-----------------------------------------------------");
+
 
             System.out.println("Algortimo de 'Wrapping'");
             System.out.println("cipher = Cipher.getInstance(\"RSA/ECB/PKCS1Padding\");\n" + "cipher.init(Cipher.WRAP_MODE, pub);");
+            System.out.println("-----------------------------------------------------");
+
 
             System.out.println("Llave Cifrada");
             System.out.println("byte[] encKey = cipher.wrap(sKey);");
+            System.out.println("-----------------------------------------------------");
+
 
             System.out.println("Datos Cifrados 'Wrapped'");
             System.out.println("encWrappedData[0] = encMsg;\n" + "encWrappedData[1] = encKey;");
+            System.out.println("-----------------------------------------------------");
+
         }
+
         // Ejercicio 2.2 -------------------------------------------------------------------------//
         private static void Ejercicio2_2(){
             KeyPair keyPair = Methods.randomGenerate(1024);
-            byte[] text = "texto".getBytes();
+
+            byte[] text = "text to encrypt".getBytes();
+            System.out.println("Starting Text: " + new String(text));
+            System.out.println("---------------------------------------");
 
             byte[][] encryptWrapped = Methods.encryptWrappedData(text, keyPair.getPublic());
-            byte[] decryptWrapped = Methods.decryptWrappedData(encryptWrapped, keyPair.getPrivate());
+            System.out.printf("Encrypted Wrapped: %s%n", (Object) encryptWrapped);
 
-            System.out.println(new String(decryptWrapped));
+            byte[] decryptWrapped = Methods.decryptWrappedData(encryptWrapped, keyPair.getPrivate());
+            System.out.println("Decrypted Unwrapped: " + new String(decryptWrapped));
         }
 }
 
@@ -217,7 +240,7 @@ class Methods {
     }
 
     //Ejercicio1.4
-    public static PublicKey getPublicKeyE4(KeyStore ks, String alias, String pwMyKey) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
+    public static PublicKey getPublicKeyEj4(KeyStore ks, String alias, String pwMyKey) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
         Key key;
         PublicKey publicKey = null;
         key = ks.getKey(alias, pwMyKey.toCharArray());
@@ -264,10 +287,12 @@ class Methods {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             kgen.init(128);
             SecretKey sKey = kgen.generateKey();
+
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, sKey);
             byte[] encMsg = cipher.doFinal(data);
-            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+            cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.WRAP_MODE, pub);
             byte[] encKey = cipher.wrap(sKey);
             encWrappedData[0] = encMsg;
@@ -280,21 +305,18 @@ class Methods {
 
     //Ejercicio2.2
     public static byte[] decryptWrappedData(byte[][] data, PrivateKey privateKey) {
-        byte[][] decWrappedData = new byte[2][];
+        byte[] decWrappedData = null;
         try {
-            KeyGenerator kgen = KeyGenerator.getInstance("AES");
-            kgen.init(128);
-            Cipher cipher = Cipher.getInstance("AES");
+            Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.UNWRAP_MODE, privateKey);
-            Key decKey = cipher.unwrap(data[1], "AES", Cipher.PRIVATE_KEY);
+            Key decKey = cipher.unwrap(data[1], "AES", Cipher.SECRET_KEY);
 
-            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, decKey);
-            byte[] decMsg = cipher.doFinal(data[0]);
-            decWrappedData[0] = decMsg;
+            decWrappedData = cipher.doFinal(data[0]);
         } catch (Exception  ex) {
             System.err.println("Ha succeït un error xifrant: " + ex);
         }
-        return decWrappedData[0];
+        return decWrappedData;
     }
 }
