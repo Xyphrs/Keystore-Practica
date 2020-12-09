@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         //Descomenta la linea del ejercicio que quieras ejecutar.
 
